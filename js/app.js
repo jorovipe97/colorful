@@ -22,7 +22,7 @@ window.addEventListener( 'load', function() {
 	
 	let queries = queryToJson();
 	
-	let sex = 'men';
+	let sex = 'unknow';
 	// Search for the sex query
 	for (let i = 0; i < queries.length; i++)
 	{
@@ -32,18 +32,27 @@ window.addEventListener( 'load', function() {
 			{
 				sex = 'girl';
 			}
+			else if (queries[i].val === 'boy') // Is the query value is equal to 'boy'
+			{
+				sex = 'boy';
+			}
 		}
 	}	
-	
+	console.log(sex);
 	// Loads the texture
 	if (sex === 'girl')
 	{
-		texture = new THREE.TextureLoader().load( '../img/girl-bg2-scaled.jpg' );
+		texture = new THREE.TextureLoader().load( '../img/girl-bg.jpg' );
 	}
-	else
+	else if (sex === 'boy')
 	{
-		texture = new THREE.TextureLoader().load( '../img/man-bg1-scaled.jpg' );
+		texture = new THREE.TextureLoader().load( '../img/boy-bg.jpg' );
 	}
+	else // Default background
+	{
+		texture = new THREE.TextureLoader().load('../img/default-bg.jpg');
+	}
+
 	
 	// Initialize the Threejs scene
 	sceneSetup();
@@ -86,6 +95,7 @@ function bufferTextureSetup(){
 	//Create 2 buffer textures
 	textureA = new THREE.WebGLRenderTarget( window.innerWidth, window.innerHeight, { minFilter: THREE.LinearFilter, magFilter: THREE.NearestFilter});
 	textureB = new THREE.WebGLRenderTarget( window.innerWidth, window.innerHeight, { minFilter: THREE.LinearFilter, magFilter: THREE.NearestFilter} );
+	
 	//Pass textureA to shader
 	bufferMaterial = new THREE.ShaderMaterial( {
 		uniforms: {
@@ -101,7 +111,15 @@ function bufferTextureSetup(){
 	bufferScene.add(bufferObject);
 
 	//Draw textureB to screen 
-	finalMaterial =  new THREE.MeshBasicMaterial({map: textureB});
+	// finalMaterial =  new THREE.MeshBasicMaterial({map: textureB});
+	finalMaterial =  new THREE.ShaderMaterial({
+		uniforms: {
+			smoke: {type: 't', value: textureB},
+			tex: {type: 't', value: texture},
+			res: {type: 'v2',value:new THREE.Vector2(window.innerWidth,window.innerHeight)}//Keeps the resolution
+		},
+		fragmentShader: document.getElementById('finalFragment').innerHTML
+	});
 	quad = new THREE.Mesh( plane, finalMaterial );
 	scene.add(quad);
 }
@@ -171,12 +189,15 @@ function UpdateMousePosition(X,Y){
 // Resizes canvas
 window.addEventListener('resize', function () {
 	// Updates the resolution uniform at quad shader
-	material.uniforms.res.value.x = window.innerWidth;
-	material.uniforms.res.value.y = window.innerHeight;
+	bufferMaterial.uniforms.res.value.x = window.innerWidth;
+	bufferMaterial.uniforms.res.value.y = window.innerHeight;
 
 	renderer.setSize(window.innerWidth, window.innerHeight);
 	camera.aspect = window.innerWidth / window.innerHeight;
 	camera.updateProjectionMatrix();
+
+	// Resets the smoke frame buffer for avoid glitches
+	bufferTextureSetup();
 });
 
 // DECODES QUERY TO JSON
@@ -184,7 +205,9 @@ function queryToJson() {
 	// example search ?sex=men&age=19
 	let searchStr = window.location.search; // this is a string
 	searchStr = searchStr.replace(/%20/g, ''); // Removes white spaces using regular expresions
+	searchStr = searchStr.replace(/#/g, ''); // Removes # using regular expresions
 	searchStr = searchStr.replace('?', ''); // removes the '?' from the received string
+	console.log(searchStr);
 	let searchs = searchStr.split('&');
 	let searchsObj = []; // json array of searchs
 	for (let i = 0; i < searchs.length; i++)

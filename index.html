@@ -43,8 +43,8 @@
           <h3 class="masthead-brand">Colorful</h3>
 
           <nav class="nav nav-masthead justify-content-center">
-            <a class="nav-link" ng-class="isLangActiveClass('en')" href="#" ng-click="setActualLang('en')">EN</a>
-            <a class="nav-link" ng-class="isLangActiveClass('es')" href="#" ng-click="setActualLang('es')">ES</a>
+            <a class="nav-link" ng-class="isLangActiveClass('en')" href="" ng-click="setActualLang('en')">EN</a>
+            <a class="nav-link" ng-class="isLangActiveClass('es')" href="" ng-click="setActualLang('es')">ES</a>
           </nav>
         </div>
       </header>
@@ -95,35 +95,19 @@
     <script id="fragmentShader" type="x-fragment-shader">
       varying vec2 vUv;
       uniform vec2 res; //The width and height of our screen
-      uniform sampler2D tex; // Background texture
-
       uniform sampler2D bufferTexture; //Our input texture
-
       uniform vec3 mouse; // Mouse info: x, y, isClicked
 
       void main() 
       {
         vec2 uv = gl_FragCoord.xy / res.xy;
- 
-        // vec4 original = texture2D( tex, uv );//This is the color of the current pixel
-        
-        // Scale image respect to the center
-        /*vec2 scale_center = vec2(0.5, 0.5);
-        // Scales relative to new origin
-        float scale_factor = 0.7;
-        vec2 uv2 = (uv - scale_center)*(scale_factor) + scale_center;
-        vec4 scaledImg = texture2D(tex, uv2);
-        float gray = scaledImg.r*0.21 + scaledImg.g*0.72 + scaledImg.b*0.07;*/
 
         // Jos Stam's paper for Real-Time Fluid Dynamics for Games http://www.dgp.toronto.edu/people/stam/reality/Research/pdf/GDC03.pdf 
-        vec4 col = texture2D(bufferTexture, uv);
-        // col = vec4(0, 0, 0, 1);
-        /*col.r += uv.y;*/
-
+        gl_FragColor = texture2D(bufferTexture, uv);
         
         //Get the distance of this pixel from the center of the screen
         float dist = distance(gl_FragCoord.xy, mouse.xy);
-        col.rgb += max(40.-dist, 0.0); // Smoke radius
+        gl_FragColor.rgb += max(100.-dist, 0.0); // Smoke radius
 
         //Smoke diffuse
         float xPixel = 1.0/res.x; //The size of a single pixel
@@ -134,14 +118,37 @@
         vec4 upColor = texture2D(bufferTexture,vec2(uv.x,uv.y+yPixel));
         vec4 downColor = texture2D(bufferTexture,vec2(uv.x,uv.y-yPixel));    
         
-        float factor = 8.0 * 0.016 * (leftColor.r + rightColor.r + 3.0*downColor.r + upColor.r - 6.0 * col.r);
+        float factor = 8.0 * 0.016 * (leftColor.r + rightColor.r + 3.0*downColor.r + upColor.r - 6.0 * gl_FragColor.r);
 
         //We have to account for the low precision of texels
         float minimum = 0.008;
         if (factor >= -minimum && factor < 0.0) factor = -minimum;
-        col.rgb += factor;
+        gl_FragColor += factor;
+      }
+    </script>
 
-        gl_FragColor = col;
+    <script id="finalFragment" type="x-fragment-shader">
+      uniform sampler2D tex; // Background texture
+      uniform sampler2D smoke; // smoke textur
+      uniform vec2 res; //The width and height of our screen
+      void main() 
+      {
+        vec2 uv = gl_FragCoord.xy / res.xy;
+ 
+        // vec4 original = texture2D( tex, uv );//This is the color of the current pixel
+        
+        // Scale image respect to the center
+        vec2 scale_center = vec2(0.5, 0.5);
+        // Scales relative to new origin
+        float scale_factor = 0.7;
+        vec2 uv2 = (uv - scale_center)*(scale_factor) + scale_center;
+        vec4 imgCol = texture2D(tex, uv2);
+        float gray = imgCol.r*0.21 + imgCol.g*0.72 + imgCol.b*0.07;
+        vec4 imgGray = vec4(vec3(gray), 1.);
+
+        // get smoke value
+        vec4 smokeVal = texture2D(smoke, uv);
+        gl_FragColor = (imgCol*smokeVal.r) + (imgGray*(1.-smokeVal.r));
       }
     </script>
 
