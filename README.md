@@ -13,4 +13,4 @@ A beautiful site for **Demand Frontier** test.
 1. The multilingual system was done by using AngularJS. Also, the page stores the user preferred language in the local storage.
 2. You can write one of the following URL queries for get a personalized background image: **?sex=boy** or **?sex=girl**
 3. The background effect is implemented by using the HTML5 canvas and GLSL shaders inspired in the Jon Stam’s paper on Real-Time Fluid Dynamics in Games.
-4. The background effect is implemented by using the HTML5 canvas and GLSL shaders inspired in the Jon Stam’s paper on Real-Time Fluid Dynamics in Games.
+4. The background effect is implemented by using the HTML5 canvas and GLSL shaders inspired in the [Jon Stam’s paper on Real-Time Fluid Dynamics in Games](http://www.dgp.toronto.edu/people/stam/reality/Research/pdf/GDC03.pdf).
