@@ -26,13 +26,15 @@
 
     <!-- Custom styles for this template -->
     <link href="./css/cover.css" rel="stylesheet">
-  </head>
 
-  <body class="text-center">
     <!-- This is because calls to angular.module can only be compiled after the library has been loaded. -->
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular-route.js"></script> 
     <script src="./js/mainController.js"></script>
+  </head>
+
+  <body class="text-center">
+    
 
 
     <div class="cover-container d-flex w-100 h-100 p-3 mx-auto flex-column content content--fixed">
@@ -47,7 +49,7 @@
         </div>
       </header>
       <!-- English Version -->
-      <main role="main" class="inner cover zoomout" ng-show="isLangActive('en')">
+      <main role="main" class="inner cover zoomout" ng-show="isLangActive('en')" ng-cloak>
         <h1 class="cover-heading">Amazing Page in English</h1>
         <p class="lead">The multilingual system was done by using AngularJS. Also, The page stores the user preferred language in the local storage.</p>
         <p class="lead">
@@ -56,7 +58,7 @@
       </main>
 
       <!-- Spanish Version -->
-      <main role="main" class="inner cover zoomout" ng-show="isLangActive('es')">
+      <main role="main" class="inner cover zoomout" ng-show="isLangActive('es')" ng-cloak>
         <h1 class="cover-heading zoomout">Página asombrosa en español</h1>
         <p class="lead">El sistema multi idioma fue realizado usando Angular JS y guarda las preferencias del usuario usando el local storage </p>
         <p class="lead">
@@ -66,11 +68,12 @@
 
 
       <footer class="mastfoot mt-auto">
-        <div class="inner" ng-show="isLangActive('en')">
+        <div class="inner" ng-show="isLangActive('en')" ng-cloak>
           <p>Amazing page for <a href="https://www.demandfrontier.com/" target="_blank">Demand Frontier</a>, by <a href="https://github.com/jorovipe97/" target="_blank">@jorovipe97</a>.</p>
         </div>
 
-        <div class="inner" ng-show="isLangActive('es')">
+        <!-- The ngCloak directive is used to prevent the AngularJS html template from being briefly displayed by the browser in its raw (uncompiled) form while your application is loading. -->
+        <div class="inner" ng-show="isLangActive('es')" ng-cloak>
           <p>Página asombrosa para <a href="https://www.demandfrontier.com/" target="_blank">Demand Frontier</a>, Realizada por <a href="https://github.com/jorovipe97/" target="_blank">@jorovipe97</a>.</p>
         </div>
       </footer>
@@ -81,7 +84,8 @@
     <script id="vertexShader" type="x-vertex-shader">
       varying vec2 vUv;
 
-      void main() {
+      void main() 
+      {
         vUv = uv;
         gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
       }
@@ -90,18 +94,54 @@
     <!-- My Fragment shader -->
     <script id="fragmentShader" type="x-fragment-shader">
       varying vec2 vUv;
-      uniform vec2 res;
-      uniform sampler2D tex;
+      uniform vec2 res; //The width and height of our screen
+      uniform sampler2D tex; // Background texture
 
-      void main() {
-        vec2 pixel = gl_FragCoord.xy / res.xy;
+      uniform sampler2D bufferTexture; //Our input texture
+
+      uniform vec3 mouse; // Mouse info: x, y, isClicked
+
+      void main() 
+      {
+        vec2 uv = gl_FragCoord.xy / res.xy;
  
+        // vec4 original = texture2D( tex, uv );//This is the color of the current pixel
+        
+        // Scale image respect to the center
+        /*vec2 scale_center = vec2(0.5, 0.5);
+        // Scales relative to new origin
+        float scale_factor = 0.7;
+        vec2 uv2 = (uv - scale_center)*(scale_factor) + scale_center;
+        vec4 scaledImg = texture2D(tex, uv2);
+        float gray = scaledImg.r*0.21 + scaledImg.g*0.72 + scaledImg.b*0.07;*/
 
-        vec4 original = texture2D( tex, pixel );//This is the color of the current pixel
-        float gray = original.r*0.21 + original.g*0.72 + original.b*0.07;
+        // Jos Stam's paper for Real-Time Fluid Dynamics for Games http://www.dgp.toronto.edu/people/stam/reality/Research/pdf/GDC03.pdf 
+        vec4 col = texture2D(bufferTexture, uv);
+        // col = vec4(0, 0, 0, 1);
+        /*col.r += uv.y;*/
 
+        
+        //Get the distance of this pixel from the center of the screen
+        float dist = distance(gl_FragCoord.xy, mouse.xy);
+        col.rgb += max(40.-dist, 0.0); // Smoke radius
 
-        gl_FragColor = vec4(vec3(gray), 1.);
+        //Smoke diffuse
+        float xPixel = 1.0/res.x; //The size of a single pixel
+        float yPixel = 1.0/res.y;
+        
+        vec4 rightColor = texture2D(bufferTexture,vec2(uv.x+xPixel,uv.y));
+        vec4 leftColor = texture2D(bufferTexture,vec2(uv.x-xPixel,uv.y));
+        vec4 upColor = texture2D(bufferTexture,vec2(uv.x,uv.y+yPixel));
+        vec4 downColor = texture2D(bufferTexture,vec2(uv.x,uv.y-yPixel));    
+        
+        float factor = 8.0 * 0.016 * (leftColor.r + rightColor.r + 3.0*downColor.r + upColor.r - 6.0 * col.r);
+
+        //We have to account for the low precision of texels
+        float minimum = 0.008;
+        if (factor >= -minimum && factor < 0.0) factor = -minimum;
+        col.rgb += factor;
+
+        gl_FragColor = col;
       }
     </script>
 
