@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<!-- saved from url=(0050)https://getbootstrap.com/docs/4.1/examples/cover/# -->
+<html ng-app="amazingPage" ng-controller="mainCtrl" ng-init="loadSavedLang()">
+
+  <head>
+
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="An amazing page">
+    <meta name="author" content="Jose Villalobos">
+
+    <!-- Favicon that works on all platforms -->
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="manifest" href="/site.webmanifest">
+    <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+    <meta name="msapplication-TileColor" content="#da532c">
+    <meta name="theme-color" content="#ffffff">
+
+    <title>Cool Page</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="./css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="./css/cover.css" rel="stylesheet">
+  </head>
+
+  <body class="text-center">
+    <!-- This is because calls to angular.module can only be compiled after the library has been loaded. -->
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular-route.js"></script> 
+    <script src="./js/mainController.js"></script>
+
+
+    <div class="cover-container d-flex w-100 h-100 p-3 mx-auto flex-column content content--fixed">
+      <header class="masthead mb-auto">
+        <div class="inner">
+          <h3 class="masthead-brand">Colorful</h3>
+
+          <nav class="nav nav-masthead justify-content-center">
+            <a class="nav-link" ng-class="isLangActiveClass('en')" href="#" ng-click="setActualLang('en')">EN</a>
+            <a class="nav-link" ng-class="isLangActiveClass('es')" href="#" ng-click="setActualLang('es')">ES</a>
+          </nav>
+        </div>
+      </header>
+      <!-- English Version -->
+      <main role="main" class="inner cover zoomout" ng-show="isLangActive('en')">
+        <h1 class="cover-heading">Amazing Page in English</h1>
+        <p class="lead">The multilingual system was done by using AngularJS. Also, The page stores the user preferred language in the local storage.</p>
+        <p class="lead">
+          <a href="#" class="btn btn-lg btn-secondary">Open source code</a>
+        </p>        
+      </main>
+
+      <!-- Spanish Version -->
+      <main role="main" class="inner cover zoomout" ng-show="isLangActive('es')">
+        <h1 class="cover-heading zoomout">Página asombrosa en español</h1>
+        <p class="lead">El sistema multi idioma fue realizado usando Angular JS y guarda las preferencias del usuario usando el local storage </p>
+        <p class="lead">
+          <a href="#" class="btn btn-lg btn-secondary">Abrir código fuente</a>
+        </p>        
+      </main>
+
+
+      <footer class="mastfoot mt-auto">
+        <div class="inner" ng-show="isLangActive('en')">
+          <p>Amazing page for <a href="https://www.demandfrontier.com/" target="_blank">Demand Frontier</a>, by <a href="https://github.com/jorovipe97/" target="_blank">@jorovipe97</a>.</p>
+        </div>
+
+        <div class="inner" ng-show="isLangActive('es')">
+          <p>Página asombrosa para <a href="https://www.demandfrontier.com/" target="_blank">Demand Frontier</a>, Realizada por <a href="https://github.com/jorovipe97/" target="_blank">@jorovipe97</a>.</p>
+        </div>
+      </footer>
+    </div>
+
+    <div id="canvas-container" class="content"></div>
+    <!-- Default Vertex Shader -->
+    <script id="vertexShader" type="x-vertex-shader">
+      varying vec2 vUv;
+
+      void main() {
+        vUv = uv;
+        gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
+      }
+    </script>
+
+    <!-- My Fragment shader -->
+    <script id="fragmentShader" type="x-fragment-shader">
+      varying vec2 vUv;
+      uniform vec2 res;
+      uniform sampler2D tex;
+
+      void main() {
+        vec2 pixel = gl_FragCoord.xy / res.xy;
+ 
+
+        vec4 original = texture2D( tex, pixel );//This is the color of the current pixel
+        float gray = original.r*0.21 + original.g*0.72 + original.b*0.07;
+
+
+        gl_FragColor = vec4(vec3(gray), 1.);
+      }
+    </script>
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="./js/jquery-3.3.1.min.js"></script>
+    <script src="./js/popper.min.js"></script>
+    <script src="./js/bootstrap.min.js"></script>    
+    
+    <script src="js/three.min.js"></script>
+    <script src="./js/app.js"></script>
+
+
+
+
+</body></html>
