@@ -42,7 +42,7 @@ window.addEventListener( 'load', function() {
 	console.log(sex);
 
 	// Progress bar logic
-	var loadicon = document.getElementById('load-icon');
+	var loadicons = document.getElementsByClassName("load-icon");
 	var manager = new THREE.LoadingManager();
 	manager.onProgress = function ( item, loaded, total ) {
 		console.log('progress: ' + loaded / total);
@@ -53,7 +53,10 @@ window.addEventListener( 'load', function() {
 	manager.onLoad = function ()
 	{
 		console.log('Loaded')
-		loadicon.style.display = "none";
+		for (let i = 0; i < loadicons.length; i++)
+		{
+			loadicons[i].style.display = 'none';
+		}
 	}
 
 	// Loads the texture
