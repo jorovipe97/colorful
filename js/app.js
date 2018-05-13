@@ -60,30 +60,6 @@ window.addEventListener( 'load', function() {
 
 	// Initialize the Threejs scene
 	sceneSetup();
-	
-	// create a wireframe material
-	/*material = new THREE.MeshBasicMaterial( {
-		map: texture
-		//wireframe: true
-	} );*/
-
-	/*material = new THREE.ShaderMaterial( {
-	  vertexShader: document.getElementById( 'vertexShader' ).textContent,
-	  fragmentShader: document.getElementById( 'fragmentShader' ).textContent,
-	  uniforms:
-	  {
-	  	res: { type: 'v2', value: new THREE.Vector2(window.innerWidth, window.innerHeight) },
-	  	tex: { type: 't', value: texture}
-	  }
-	} );
-	let geometry = new THREE.PlaneBufferGeometry( window.innerWidth, window.innerHeight);
-
-	// create a sphere and assign the material
-	quad = new THREE.Mesh(
-		geometry,
-		material
-	);
-	scene.add( quad );*/
 
 	// FRAME BUFFER TRICK
 	bufferTextureSetup();
