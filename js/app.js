@@ -1,12 +1,13 @@
 var container,
-  renderer,
+  renderer = null,
   scene,
   camera,
   material,
   quad,
   texture,
   start = Date.now(),
-  fov = 30;
+  fov = 30,
+  canvas = null;
 
   var bufferScene;
   var textureA;
@@ -129,6 +130,8 @@ function bufferTextureSetup(){
 
 
 function sceneSetup() {
+
+
 	// BACKGROUND LOGIC
 	container = document.getElementById('canvas-container');
 	// create a scene
@@ -139,13 +142,19 @@ function sceneSetup() {
 	// create a camera the size of the browser window
 	// and place it 100 units away, looking towards the center of the scene
 	camera = new THREE.OrthographicCamera( width / - 2, width / 2, height / 2, height / - 2, 1, 1000 );
-	camera.position.z = 100;
+	camera.position.z = 2;
 
+	// This is need for allow resizing
+	if (renderer !== null)
+	{
+		container.removeChild(renderer.domElement);
+		renderer.dispose();
+	}
 	// create the renderer and attach it to the DOM
 	renderer = new THREE.WebGLRenderer();
 	renderer.setSize( window.innerWidth, window.innerHeight );
-	renderer.setPixelRatio( window.devicePixelRatio );
 	container.appendChild( renderer.domElement );
+	canvas = document.getElementsByTagName('canvas')[0];
 }
 
 // Renders the scene
@@ -178,13 +187,23 @@ function update()
 {
 	// Updates uniform
 	document.onmousemove = function(event){
+		// console.log('X: ' + event.clientX + ' Y: ' +event.clientY);
+		// UpdateMousePosition(event.clientX,event.clientY)
 		UpdateMousePosition(event.clientX,event.clientY)
 	}
 }
 
 function UpdateMousePosition(X,Y){
+	// var rect = canvas.getBoundingClientRect();
+	/*var x = (X - rect.left) / canvas.clientWidth *  2 - 1;
+	var y = (Y - rect.top) / canvas.clientHeight * -2 + 1;*/
+
+	var rect = canvas.getBoundingClientRect();
+	//console.log(rect);
 	var mouseX = X;
-	var mouseY = window.innerHeight - Y; // DOM Coordinate system is inverted
+	var mouseY =rect.height - Y; // DOM Coordinate system is inverted
+	//console.log('X: ' + mouseX + ' Y: ' + mouseY);
+
 	bufferMaterial.uniforms.mouse.value.x = mouseX;
 	bufferMaterial.uniforms.mouse.value.y = mouseY;
 }
@@ -195,6 +214,8 @@ window.addEventListener('resize', function () {
 	// If we are in mobile abort cute bg
 	if (mobileAndTabletcheck())
 		return;
+
+	sceneSetup();
 	// Updates the resolution uniform at quad shader
 	bufferMaterial.uniforms.res.value.x = window.innerWidth;
 	bufferMaterial.uniforms.res.value.y = window.innerHeight;
