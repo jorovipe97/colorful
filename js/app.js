@@ -41,6 +41,11 @@ window.addEventListener( 'load', function() {
 	}	
 	console.log(sex);
 
+
+
+	
+	var loadicons = document.getElementsByClassName("load-icon");
+
 	// If we are in mobile abort cute bg
 	if (mobileAndTabletcheck())
 	{
@@ -50,9 +55,8 @@ window.addEventListener( 'load', function() {
 		}
 		return;
 	}
-
+	
 	// Progress bar logic
-	var loadicons = document.getElementsByClassName("load-icon");
 	var manager = new THREE.LoadingManager();
 	manager.onProgress = function ( item, loaded, total ) {
 		console.log('progress: ' + loaded / total);
