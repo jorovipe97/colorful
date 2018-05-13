@@ -67,7 +67,7 @@ window.addEventListener( 'load', function() {
 	}
 	else // Default background
 	{
-		texture = new THREE.TextureLoader(manager).load('/colorful/img/default-bg.jpg');
+		texture = new THREE.TextureLoader().load('/colorful/img/default-bg.jpg');
 	}
 
 	// If we are in mobile abort cute bg
