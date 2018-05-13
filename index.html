@@ -83,7 +83,7 @@
       </footer>
     </div>
 
-    <div id="canvas-container" class="content"></div>
+    <div id="canvas-container"></div>
     <!-- Default Vertex Shader -->
     <script id="vertexShader" type="x-vertex-shader">
       varying vec2 vUv;
@@ -97,38 +97,39 @@
 
     <!-- My Fragment shader -->
     <script id="fragmentShader" type="x-fragment-shader">
-      varying vec2 vUv;
-      uniform vec2 res; //The width and height of our screen
-      uniform sampler2D bufferTexture; //Our input texture
-      uniform vec3 mouse; // Mouse info: x, y, isClicked
+    uniform vec2 res;//The width and height of our screen
+    uniform sampler2D bufferTexture;//Our input texture
+    uniform vec3 mouse;//The x,y are the posiiton. The z is the power/density
+    void main() {
+      vec2 pixel = gl_FragCoord.xy / res.xy;
+      gl_FragColor = texture2D( bufferTexture, pixel );
 
-      void main() 
-      {
-        vec2 uv = gl_FragCoord.xy / res.xy;
-
-        // Jos Stam's paper for Real-Time Fluid Dynamics for Games http://www.dgp.toronto.edu/people/stam/reality/Research/pdf/GDC03.pdf 
-        gl_FragColor = texture2D(bufferTexture, uv);
-        
         //Get the distance of this pixel from the center of the screen
-        float dist = distance(gl_FragCoord.xy, mouse.xy);
-        gl_FragColor.rgb += max(100.-dist, 0.0); // Smoke radius
+      float dist = distance(gl_FragCoord.xy, mouse.xy);
+      gl_FragColor.rgb += max(100.-dist, 0.0); // Smoke radius
+  
+      //Smoke diffuse
+      float xPixel = 1.0/res.x;//The size of a single pixel
+      float yPixel = 1.0/res.y;
+      vec4 rightColor = texture2D(bufferTexture,vec2(pixel.x+xPixel,pixel.y));
+      vec4 leftColor = texture2D(bufferTexture,vec2(pixel.x-xPixel,pixel.y));
+      vec4 upColor = texture2D(bufferTexture,vec2(pixel.x,pixel.y+yPixel));
+      vec4 downColor = texture2D(bufferTexture,vec2(pixel.x,pixel.y-yPixel));
+      //Diffuse equation
+      float factor = 8.0 * 0.016 * 
+          (
+              leftColor.r + 
+              rightColor.r + 
+              downColor.r * 3.0 + 
+              upColor.r - 
+              6.0 * gl_FragColor.r
+          );
+      //We have to account for the low precision of texels
+      float minimum = 0.04;
+      if(factor >= -minimum && factor < 0.0) factor = -minimum;
 
-        //Smoke diffuse
-        float xPixel = 1.0/res.x; //The size of a single pixel
-        float yPixel = 1.0/res.y;
-        
-        vec4 rightColor = texture2D(bufferTexture,vec2(uv.x+xPixel,uv.y));
-        vec4 leftColor = texture2D(bufferTexture,vec2(uv.x-xPixel,uv.y));
-        vec4 upColor = texture2D(bufferTexture,vec2(uv.x,uv.y+yPixel));
-        vec4 downColor = texture2D(bufferTexture,vec2(uv.x,uv.y-yPixel));    
-        
-        float factor = 8.0 * 0.016 * (leftColor.r + rightColor.r + 3.0*downColor.r + upColor.r - 6.0 * gl_FragColor.r);
-
-        //We have to account for the low precision of texels
-        float minimum = 0.008;
-        if (factor >= -minimum && factor < 0.0) factor = -minimum;
-        gl_FragColor += factor;
-      }
+      gl_FragColor.rgb += factor;
+     }
     </script>
 
     <script id="finalFragment" type="x-fragment-shader">
@@ -147,12 +148,14 @@
         float scale_factor = 0.7;
         vec2 uv2 = (uv - scale_center)*(scale_factor) + scale_center;
         vec4 imgCol = texture2D(tex, uv2);
+        
         float gray = imgCol.r*0.21 + imgCol.g*0.72 + imgCol.b*0.07;
         vec4 imgGray = vec4(vec3(gray), 1.);
 
         // get smoke value
         vec4 smokeVal = texture2D(smoke, uv);
         gl_FragColor = (imgCol*smokeVal.r) + (imgGray*(1.-smokeVal.r));
+        // gl_FragColor = smokeVal;
       }
     </script>
 
@@ -163,7 +166,7 @@
     <script src="./js/popper.min.js"></script>
     <script src="./js/bootstrap.min.js"></script>    
     
-    <script src="js/three.min.js"></script>
+    <script src="./js/three.min.js"></script>
     <script src="./js/app.js"></script>
 
 
