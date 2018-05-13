@@ -40,6 +40,22 @@ window.addEventListener( 'load', function() {
 		}
 	}	
 	console.log(sex);
+
+	// Progress bar logic
+	var loadicon = document.getElementById('load-icon');
+	var manager = new THREE.LoadingManager();
+	manager.onProgress = function ( item, loaded, total ) {
+		console.log('progress: ' + loaded / total);
+  		// progressBar.style.width = (loaded / total * 100) + '%';
+	};
+
+	// Loading complete
+	manager.onLoad = function ()
+	{
+		console.log('Loaded')
+		loadicon.style.display = "none";
+	}
+
 	// Loads the texture
 	if (sex === 'girl')
 	{
