@@ -43,8 +43,14 @@ window.addEventListener( 'load', function() {
 
 	// If we are in mobile abort cute bg
 	if (mobileAndTabletcheck())
+	{
+		for (let i = 0; i < loadicons.length; i++)
+		{
+			loadicons[i].style.display = 'none';
+		}
 		return;
-	
+	}
+
 	// Progress bar logic
 	var loadicons = document.getElementsByClassName("load-icon");
 	var manager = new THREE.LoadingManager();
