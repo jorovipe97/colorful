@@ -59,15 +59,15 @@ window.addEventListener( 'load', function() {
 	// Loads the texture
 	if (sex === 'girl')
 	{
-		texture = new THREE.TextureLoader().load( '/colorful/img/girl-bg.jpg' );
+		texture = new THREE.TextureLoader(manager).load( '/colorful/img/girl-bg.jpg' );
 	}
 	else if (sex === 'boy')
 	{
-		texture = new THREE.TextureLoader().load( '/colorful/img/boy-bg.jpg' );
+		texture = new THREE.TextureLoader(manager).load( '/colorful/img/boy-bg.jpg' );
 	}
 	else // Default background
 	{
-		texture = new THREE.TextureLoader().load('/colorful/img/default-bg.jpg');
+		texture = new THREE.TextureLoader(manager).load('/colorful/img/default-bg.jpg');
 	}
 
 	// If we are in mobile abort cute bg
