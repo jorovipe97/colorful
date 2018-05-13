@@ -40,18 +40,34 @@ window.addEventListener( 'load', function() {
 		}
 	}	
 	console.log(sex);
+
+	// Progress bar logic
+	var loadicon = document.getElementById('load-icon');
+	var manager = new THREE.LoadingManager();
+	manager.onProgress = function ( item, loaded, total ) {
+		console.log('progress: ' + loaded / total);
+  		// progressBar.style.width = (loaded / total * 100) + '%';
+	};
+
+	// Loading complete
+	manager.onLoad = function ()
+	{
+		console.log('Loaded')
+		loadicon.style.display = "none";
+	}
+
 	// Loads the texture
 	if (sex === 'girl')
 	{
-		texture = new THREE.TextureLoader().load( '../img/girl-bg.jpg' );
+		texture = new THREE.TextureLoader(manager).load( '../img/girl-bg.jpg' );
 	}
 	else if (sex === 'boy')
 	{
-		texture = new THREE.TextureLoader().load( '../img/boy-bg.jpg' );
+		texture = new THREE.TextureLoader(manager).load( '../img/boy-bg.jpg' );
 	}
 	else // Default background
 	{
-		texture = new THREE.TextureLoader().load('../img/default-bg.jpg');
+		texture = new THREE.TextureLoader(manager).load('../img/default-bg.jpg');
 	}
 
 	// If we are in mobile abort cute bg
@@ -60,30 +76,6 @@ window.addEventListener( 'load', function() {
 
 	// Initialize the Threejs scene
 	sceneSetup();
-	
-	// create a wireframe material
-	/*material = new THREE.MeshBasicMaterial( {
-		map: texture
-		//wireframe: true
-	} );*/
-
-	/*material = new THREE.ShaderMaterial( {
-	  vertexShader: document.getElementById( 'vertexShader' ).textContent,
-	  fragmentShader: document.getElementById( 'fragmentShader' ).textContent,
-	  uniforms:
-	  {
-	  	res: { type: 'v2', value: new THREE.Vector2(window.innerWidth, window.innerHeight) },
-	  	tex: { type: 't', value: texture}
-	  }
-	} );
-	let geometry = new THREE.PlaneBufferGeometry( window.innerWidth, window.innerHeight);
-
-	// create a sphere and assign the material
-	quad = new THREE.Mesh(
-		geometry,
-		material
-	);
-	scene.add( quad );*/
 
 	// FRAME BUFFER TRICK
 	bufferTextureSetup();
