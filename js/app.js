@@ -41,6 +41,10 @@ window.addEventListener( 'load', function() {
 	}	
 	console.log(sex);
 
+	// If we are in mobile abort cute bg
+	if (mobileAndTabletcheck())
+		return;
+	
 	// Progress bar logic
 	var loadicons = document.getElementsByClassName("load-icon");
 	var manager = new THREE.LoadingManager();
@@ -73,9 +77,7 @@ window.addEventListener( 'load', function() {
 		texture = new THREE.TextureLoader(manager).load('/colorful/img/default-bg.jpg');
 	}
 
-	// If we are in mobile abort cute bg
-	if (mobileAndTabletcheck())
-		return;
+	
 
 	// Initialize the Threejs scene
 	sceneSetup();
